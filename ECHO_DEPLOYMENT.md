@@ -1,8 +1,27 @@
 # Deploy only the LINE Echo Bot — Windows PowerShell
 
-Use **`wrangler.echo.jsonc`** throughout this guide. It deploys `src/echo.ts` as `art-ai-line-echo`, without any D1 binding, Gemini integration, scheduled handler or Cron trigger. The main `wrangler.jsonc` belongs to the later-phase scaffold; do not deploy it during this milestone.
+Use **`wrangler.echo.jsonc`** throughout this guide. It deploys `src/echo.ts` as `kpom-agent`, without any D1 binding, Gemini integration, scheduled handler or Cron trigger. The main `wrangler.jsonc` belongs to the later-phase scaffold; do not deploy it during this milestone.
 
 The standalone echo entry point, shared HMAC verification and LINE Reply client have been locally tested. No Cloudflare account login, real deployment, LINE webhook verification or real message exchange has been performed here.
+
+## Cloudflare Workers Builds — existing project
+
+Open Cloudflare dashboard → Workers & Pages → the existing **kpom-agent** Worker → Settings → Builds. Connect the existing GitHub repository **Supitch-hub/kpom-agent** if it is not already connected. Do not create a new Worker or repository.
+
+Set the build configuration to:
+
+| Setting | Value |
+|---|---|
+| Production branch | `main` |
+| Root directory | Repository root (leave the default; do not select `src`) |
+| Build command | `npm run typecheck` |
+| Deploy command | `npx wrangler deploy --config wrangler.echo.jsonc` |
+
+Workers Builds installs dependencies from `package.json`/`package-lock.json` before running the build command. Use Node.js 24 for the build environment; if needed, set the nonsecret build environment variable `NODE_VERSION=24`. No framework preset or asset output directory is required. The explicitly selected config has `name: "kpom-agent"`, `main: "src/echo.ts"`, no D1 bindings and no Cron triggers. Gemini is not part of this entry point.
+
+Keep the three LINE credentials in the **existing Worker's runtime secrets**, not the Git repository or nonsecret build variables. Changing Git files does not configure those credentials. Keep `MOCK_CLIENTS=false` for the deployed Worker.
+
+Merge the configuration change into `main` only when ready for the configured build pipeline to run; an enabled automatic production build may deploy after the merge. Saving the configuration or locally running TypeScript checks is not a verified deployment. Review any non-production branch deploy command too: do not point preview/branch builds at the production Worker unintentionally. Trigger a production build separately when deployment is authorized.
 
 ## 1. Prepare the project and authenticate
 
@@ -44,7 +63,7 @@ npx.cmd wrangler secret put LINE_ALLOWED_USER_ID --config wrangler.echo.jsonc
 npx.cmd wrangler secret list --config wrangler.echo.jsonc
 ```
 
-The installed Wrangler may ask, “There doesn't seem to be a Worker called art-ai-line-echo. Do you want to create a new Worker with that name and add secrets to it?” Answer **yes** if this is the intended Worker/account. This creates its initial shell so secrets can be stored. The full echo code is deployed in step 3. If that Worker name already belongs to another application in your account, stop and choose a different `name` in `wrangler.echo.jsonc` before adding secrets.
+Use the existing Cloudflare Worker **kpom-agent** in the intended account. If Wrangler says the Worker does not exist or asks to create one, answer **no** and verify the account/project selection. Do not create or rename a Worker. Secrets and deployments must target the existing project.
 
 `secret list` displays secret **names/types only**, not values. Confirm all three names exist. Local `.dev.vars` is not a substitute for remote secrets and is not uploaded by these deployment instructions. Do not enable verbose/debug logging or share console output containing credentials.
 
@@ -67,15 +86,15 @@ Use one of the two equivalent commands, not both. Keep `MOCK_CLIENTS` equal to `
 Wrangler prints the actual HTTPS URL, generally:
 
 ```text
-https://art-ai-line-echo.YOUR_SUBDOMAIN.workers.dev
+https://kpom-agent.YOUR_SUBDOMAIN.workers.dev
 ```
 
-Use the actual printed URL. The text above is a template, not an existing deployment. If no public URL is printed, open Cloudflare → Workers & Pages → `art-ai-line-echo` → Settings → Domains & Routes and enable/copy its `workers.dev` route. Do not configure Cloudflare Access/browser challenges on the webhook route; LINE needs direct HTTPS access.
+Use the actual printed URL. The text above is a template, not an existing deployment. If no public URL is printed, open Cloudflare → Workers & Pages → `kpom-agent` → Settings → Domains & Routes and enable/copy its `workers.dev` route. Do not configure Cloudflare Access/browser challenges on the webhook route; LINE needs direct HTTPS access.
 
 In PowerShell, replace the template with your actual nonsecret URL:
 
 ```powershell
-$echoBaseUrl = 'https://art-ai-line-echo.YOUR_SUBDOMAIN.workers.dev'
+$echoBaseUrl = 'https://kpom-agent.YOUR_SUBDOMAIN.workers.dev'
 Invoke-RestMethod "$echoBaseUrl/health"
 "$echoBaseUrl/webhook/line"
 ```

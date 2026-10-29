@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "art-ai-line-echo",
+  "name": "kpom-agent",
   "main": "src/echo.ts",
   "compatibility_date": "2025-10-01",
   "workers_dev": true,

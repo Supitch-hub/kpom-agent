@@ -2,6 +2,8 @@
 
 **Deploy the echo-only milestone:** follow [ECHO_DEPLOYMENT.md](ECHO_DEPLOYMENT.md) using `wrangler.echo.jsonc` and `npm run deploy:echo`. That separate entry point requires **no D1, Gemini or Cron**. The older full-MVP deployment instructions below are not the instructions for this echo-only rollout.
 
+The echo configuration targets the existing Cloudflare Worker **kpom-agent**. For Workers Builds, use build command `npm run typecheck` and deploy command `npx wrangler deploy --config wrangler.echo.jsonc` from the repository root. See the [Workers Builds settings](ECHO_DEPLOYMENT.md#cloudflare-workers-builds--existing-project); do not create a new Worker.
+
 Repository: [Supitch-hub/kpom-agent](https://github.com/Supitch-hub/kpom-agent). To run only the echo bot locally after cloning, use `npm ci`, copy `.dev.vars.example` to `.dev.vars` only if absent, then run `npm run dev:echo`. The example uses dummy credentials and mocked LINE responses. Check `/health` locally; real LINE integration and Cloudflare deployment remain separate, unverified steps.
 
 **Current implementation milestone: Phase 1 (echo).** `RESPONSE_MODE=echo` is now the default: authenticated, allowed text messages are echoed through LINE Reply API, command execution and scheduled pushes are disabled. See [Phase 1 setup and verification](PHASE1.md) first. The agent modules and full-MVP guide below are retained for later phases; `/task`, Gemini, reminders and briefings require explicitly selecting `RESPONSE_MODE=agent`. Do not enable that mode while validating Phase 1.
