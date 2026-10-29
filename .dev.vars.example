@@ -1,0 +1,8 @@
+# Local development only. Never commit real values.
+LINE_CHANNEL_SECRET=local-test-secret
+LINE_CHANNEL_ACCESS_TOKEN=local-test-token
+LINE_ALLOWED_USER_ID=Ulocal-test-user
+GEMINI_API_KEY=
+MOCK_CLIENTS=true
+AI_ENABLED=false
+RESPONSE_MODE=echo

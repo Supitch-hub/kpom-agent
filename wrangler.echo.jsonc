@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "art-ai-line-echo",
+  "main": "src/echo.ts",
+  "compatibility_date": "2025-10-01",
+  "workers_dev": true,
+  "vars": { "MOCK_CLIENTS": "false" },
+  "observability": { "enabled": false }
+}
